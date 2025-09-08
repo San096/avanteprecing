@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "/src/components/Header";
 import Footer from "/src/components/Footer";
 
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,16 +17,17 @@ export default function Login() {
     setError("");
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/pricings"); // ✅ vai para a lista de precificações
+      navigate("/pricings");
     } catch {
       setError("❌ Usuário ou senha inválidos");
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="flex flex-col min-h-screen relative overflow-hidden">
+      
       <Header />
-      <main className="flex flex-col items-center justify-center flex-1">
+      <main className="flex flex-col items-center justify-center flex-1 relative z-10">
         <form
           onSubmit={handleLogin}
           className="bg-white p-8 rounded-2xl shadow-lg w-[90%] max-w-md mt-10"
