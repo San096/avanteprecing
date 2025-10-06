@@ -7,6 +7,14 @@ import Header from "/src/components/Header";
 import Footer from "/src/components/Footer";
 import jsPDF from "jspdf";
 import avanteLogo from "/src/assets/avantelogo.png";
+import {
+  FileDown,
+  ArrowLeftCircle,
+  LogOut,
+  ClipboardList,
+  User,
+  Info,
+} from "lucide-react";
 
 export default function PricingReview() {
   const { id } = useParams();
@@ -15,11 +23,11 @@ export default function PricingReview() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // 🔹 Dados fixos da consultoria
   const companyData = {
     name: "AvanteTech Jr.",
     cnpj: "55.625.728/0001-09",
-    address: "Avenida Jose de Freitas Queiroz, 5003 - Cedro - Quixadá/CE - CEP 63.902-580",
+    address:
+      "Avenida Jose de Freitas Queiroz, 5003 - Cedro - Quixadá/CE - CEP 63.902-580",
     phone: "(88) 9618-8715",
     email: "avantetechjr@gmail.com",
   };
@@ -56,17 +64,15 @@ export default function PricingReview() {
     fetchData();
   }, [id, navigate]);
 
-  // 🔹 Logout
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigate("/");
+      navigate("/login");
     } catch (err) {
       console.error("Erro ao deslogar:", err);
     }
   };
 
-  // 🔹 Função auxiliar título seção
   const drawSectionTitle = (pdf, title, y) => {
     pdf.setFillColor(0, 102, 204);
     pdf.rect(10, y, 190, 8, "F");
@@ -77,20 +83,14 @@ export default function PricingReview() {
     return y + 14;
   };
 
-  // ✅ Exportar PDF
   const handleExportPDF = () => {
     const pdf = new jsPDF("p", "mm", "a4");
     let y = 20;
-
-    // Logo
     pdf.addImage(avanteLogo, "PNG", 10, 10, 20, 20);
-
-    // Título
     pdf.setFontSize(16);
     pdf.text("Orçamento Detalhado", 105, y, { align: "center" });
     y += 20;
 
-    // Consultoria
     y = drawSectionTitle(pdf, "Consultoria", y);
     pdf.setFontSize(10);
     pdf.text(`Nome: ${companyData.name}`, 10, y); y += 6;
@@ -99,18 +99,16 @@ export default function PricingReview() {
     pdf.text(`Telefone: ${companyData.phone}`, 10, y); y += 6;
     pdf.text(`Email: ${companyData.email}`, 10, y); y += 10;
 
-    //  Cliente
     y = drawSectionTitle(pdf, "Cliente", y);
     pdf.text(`Nome: ${client?.name || ""}`, 10, y); y += 6;
     pdf.text(`Email: ${client?.email || ""}`, 10, y); y += 6;
     pdf.text(`Telefone: ${client?.phone || ""}`, 10, y); y += 6;
     pdf.text(`Cidade/Estado: ${client?.city_state || ""}`, 10, y); y += 10;
-   
-    // Procedimentos
+
     y = drawSectionTitle(pdf, "Procedimentos & Cronograma", y);
     if (pricing?.procedures?.length > 0) {
-      pricing.procedures.forEach((p, index) => {
-        pdf.text(`${index + 1}. ${p.description} — ${p.days} dias`, 10, y);
+      pricing.procedures.forEach((p, i) => {
+        pdf.text(`${i + 1}. ${p.description} — ${p.days} dias`, 10, y);
         y += 6;
       });
     } else {
@@ -118,7 +116,6 @@ export default function PricingReview() {
       y += 6;
     }
 
-    //  Precificação
     y = drawSectionTitle(pdf, "Precificação", y);
     pdf.text(`Código: ${pricing?.codigo}`, 10, y); y += 6;
     pdf.text(`Descrição: ${pricing?.problem_description}`, 10, y); y += 6;
@@ -129,8 +126,6 @@ export default function PricingReview() {
     pdf.text(`Valor hora: R$ ${pricing?.hourly_rate}`, 10, y); y += 6;
     pdf.text(`Custo total: R$ ${pricing?.total_cost}`, 10, y); y += 10;
 
-    
-    // Formalização
     y = drawSectionTitle(pdf, "Formalização", y);
     pdf.setFontSize(10);
     pdf.text(
@@ -142,87 +137,116 @@ export default function PricingReview() {
       10,
       y
     );
-    y += 20;
 
+    y += 20;
     pdf.line(20, 260, 190, 260);
     pdf.setFontSize(12);
     pdf.text("Assinatura do Diretor Financeiro", 105, 270, { align: "center" });
-
     pdf.save(`Precificacao-${pricing?.codigo}.pdf`);
   };
 
-  if (loading) return <p className="text-center mt-10">Carregando...</p>;
+  if (loading)
+    return (
+      <div className="flex flex-col items-center justify-center h-screen text-gray-600">
+        <p className="animate-pulse text-lg">Carregando dados...</p>
+      </div>
+    );
+
   if (!pricing) return null;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
-      <main className="flex flex-col items-center flex-1 px-4">
-        <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-2xl mt-6">
-          <h2 className="text-xl font-bold text-center mb-6">
+      <main className="flex flex-col items-center flex-1 px-4 py-10">
+        <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-3xl">
+          <h2 className="text-2xl font-bold text-center text-blue-700 mb-8">
             Revisão da Precificação
           </h2>
 
-          {/* Cliente */}
-          <h3 className="text-lg font-semibold mb-2">Cliente</h3>
-          {client ? (
-            <>
-              <p><strong>Nome:</strong> {client.name}</p>
-              <p><strong>Email:</strong> {client.email}</p>
-              <p><strong>Telefone:</strong> {client.phone}</p>
-              <p><strong>Cidade/Estado:</strong> {client.city_state}</p>
-            </>
-          ) : (
-            <p>Cliente não encontrado</p>
-          )}
+          {/* Seção Cliente */}
+          <section className="mb-6">
+            <div className="flex items-center gap-2 mb-2 text-blue-600">
+              <User size={20} />
+              <h3 className="text-lg font-semibold">Informações do Cliente</h3>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-4 text-sm text-gray-700">
+              {client ? (
+                <>
+                  <p><strong>Nome:</strong> {client.name}</p>
+                  <p><strong>Email:</strong> {client.email}</p>
+                  <p><strong>Telefone:</strong> {client.phone}</p>
+                  <p><strong>Cidade/Estado:</strong> {client.city_state}</p>
+                </>
+              ) : (
+                <p>Cliente não encontrado</p>
+              )}
+            </div>
+          </section>
 
-          <hr className="my-4" />
+          {/* Seção Precificação */}
+          <section className="mb-6">
+            <div className="flex items-center gap-2 mb-2 text-green-600">
+              <Info size={20} />
+              <h3 className="text-lg font-semibold">
+                Informações da Precificação
+              </h3>
+            </div>
+            <div className="bg-green-50 rounded-lg p-4 text-sm text-gray-700">
+              <p><strong>Código:</strong> {pricing.codigo}</p>
+              <p><strong>Descrição:</strong> {pricing.problem_description}</p>
+              <p><strong>Devs:</strong> {pricing.devs}</p>
+              <p><strong>Dias úteis:</strong> {pricing.business_days}</p>
+              <p><strong>Horas/dia:</strong> {pricing.hours_per_day}</p>
+              <p><strong>Total de horas:</strong> {pricing.total_hours}</p>
+              <p><strong>Valor hora:</strong> R$ {pricing.hourly_rate}</p>
+              <p className="text-blue-700 font-semibold mt-2">
+                <strong>Custo total:</strong> R$ {pricing.total_cost}
+              </p>
+            </div>
+          </section>
 
-          {/* Precificação */}
-          <h3 className="text-lg font-semibold mb-2">Informações da Precificação</h3>
-          <p><strong>Código:</strong> {pricing.codigo}</p>
-          <p><strong>Descrição:</strong> {pricing.problem_description}</p>
-          <p><strong>Devs:</strong> {pricing.devs}</p>
-          <p><strong>Dias úteis:</strong> {pricing.business_days}</p>
-          <p><strong>Horas/dia:</strong> {pricing.hours_per_day}</p>
-          <p><strong>Total de horas:</strong> {pricing.total_hours}</p>
-          <p><strong>Valor hora:</strong> R$ {pricing.hourly_rate}</p>
-          <p><strong>Custo total:</strong> R$ {pricing.total_cost}</p>
+          {/* Seção Procedimentos */}
+          <section>
+            <div className="flex items-center gap-2 mb-2 text-purple-600">
+              <ClipboardList size={20} />
+              <h3 className="text-lg font-semibold">Procedimentos</h3>
+            </div>
+            <div className="bg-purple-50 rounded-lg p-4 text-sm text-gray-700">
+              {pricing?.procedures?.length > 0 ? (
+                <ul className="list-disc ml-5">
+                  {pricing.procedures.map((p, i) => (
+                    <li key={i}>
+                      {p.description} — {p.days} dias
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Nenhum procedimento informado</p>
+              )}
+            </div>
+          </section>
 
-          <hr className="my-4" />
-
-          {/* Procedimentos */}
-          <h3 className="text-lg font-semibold mb-2">Procedimentos</h3>
-          {pricing?.procedures?.length > 0 ? (
-            <ul className="list-disc ml-6">
-              {pricing.procedures.map((p, index) => (
-                <li key={index}>
-                  {p.description} — {p.days} dias
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Nenhum procedimento informado</p>
-          )}
-
-          <div className="flex gap-4 mt-6 justify-center">
+          {/* Botões */}
+          <div className="flex flex-wrap justify-center gap-4 mt-10">
             <button
-              className="bg-blue-600 text-white px-4 py-2 rounded"
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition"
               onClick={handleExportPDF}
             >
-              Exportar PDF
+              <FileDown size={18} /> Exportar PDF
             </button>
+
             <button
-              className="bg-gray-500 text-white px-4 py-2 rounded"
-              onClick={() => navigate(`/pricings/new?pricingId=${pricing.id}`)}
+              className="flex items-center gap-2 bg-gray-500 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-600 transition"
+              onClick={() => navigate("/pricings")}
             >
-              Voltar
+              <ArrowLeftCircle size={18} /> Voltar
             </button>
+
             <button
-              className="bg-red-600 text-white px-4 py-2 rounded"
+              className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition"
               onClick={handleLogout}
             >
-              Deslogar
+              <LogOut size={18} /> Sair
             </button>
           </div>
         </div>
