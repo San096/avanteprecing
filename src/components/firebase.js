@@ -1,23 +1,27 @@
 // Importando Firebase
-import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Configuração do Firebase do seu projeto
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDnKgriso8lL-tBgsnMscs4cJoV0oCyUio",
-  authDomain: "avante-pricing-830e7.firebaseapp.com",
-  projectId: "avante-pricing-830e7",
-  storageBucket: "avante-pricing-830e7.appspot.com", // ⚠️ corrigido: era .app → tem que ser .appspot.com
-  messagingSenderId: "180241921540",
-  appId: "1:180241921540:web:608f3e371bbd2d0cf76751"
+  apiKey: "AIzaSyDEro0P7N1oYNCiC8Y8NhEtcu7QyKoshmI",
+  authDomain: "inovaleprecing.firebaseapp.com",
+  projectId: "inovaleprecing",
+  storageBucket: "inovaleprecing.firebasestorage.app",
+  messagingSenderId: "439207109276",
+  appId: "1:439207109276:web:340bd4c11f2f07f1704359",
+  measurementId: "G-37Z9VWGXDF"
 };
 
-// Inicializando o app
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Exportando os serviços para usar no React
+const analytics = getAnalytics(app);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
