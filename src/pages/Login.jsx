@@ -37,7 +37,7 @@ export default function Login() {
           onSubmit={handleLogin}
           className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md animate-fadeIn"
         >
-          <h2 className="text-center text-2xl font-bold text-orange-600 mb-6 flex items-center justify-center gap-2">
+          <h2 className="text-center text-2xl font-bold text-blue-700 mb-6 flex items-center justify-center gap-2">
             <LogIn size={22} />
             Acesse sua conta
           </h2>
@@ -53,7 +53,7 @@ export default function Login() {
               placeholder="Digite seu email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-10 p-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+              className="w-full pl-10 p-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               required
             />
           </div>
@@ -69,7 +69,7 @@ export default function Login() {
               placeholder="Digite sua senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-10 p-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+              className="w-full pl-10 p-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               required
             />
           </div>
@@ -85,10 +85,10 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full bg-orange-600 text-white py-3 rounded-full font-semibold transition-all ${
+            className={`w-full bg-blue-600 text-white py-3 rounded-full font-semibold transition-all ${
               loading
                 ? "opacity-60 cursor-not-allowed"
-                : "hover:bg-orange-700 hover:scale-105"
+                : "hover:bg-blue-700 hover:scale-105"
             }`}
           >
             {loading ? "Entrando..." : "Entrar"}
@@ -96,7 +96,7 @@ export default function Login() {
 
           {/* Info */}
           <p className="text-center text-sm text-gray-500 mt-4">
-            © {new Date().getFullYear()} Inovale Jr.
+            © {new Date().getFullYear()} AvanteTech Jr.
           </p>
         </form>
       </main>
