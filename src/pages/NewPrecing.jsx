@@ -7,6 +7,7 @@ import Footer from "/src/components/Footer";
 import { Home } from "lucide-react";
 
 export default function NewPricing() {
+  // 🔹 Dados fixos da empresa (mantidos)
   const companyData = {
     name: "AvanteTech Jr.",
     cnpj: "55.625.728/0001-09",
@@ -21,6 +22,7 @@ export default function NewPricing() {
   const clientIdFromUrl = searchParams.get("clientId");
   const [loading, setLoading] = useState(false);
 
+  // 🔹 Form (lógica original mantida)
   const [form, setForm] = useState({
     clientId: clientIdFromUrl || "",
     problem_description: "",
@@ -33,6 +35,7 @@ export default function NewPricing() {
     hourly_rate: 0,
   });
 
+  // 🔹 Procedimentos (lógica original mantida)
   const [procedures, setProcedures] = useState([{ description: "", days: 0 }]);
   const navigate = useNavigate();
 
@@ -44,7 +47,7 @@ export default function NewPricing() {
     fetchClients();
   }, []);
 
-  // 🧩 Função principal de envio
+  // 🧩 Função principal de envio (MANTIDA)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -62,7 +65,9 @@ export default function NewPricing() {
       const snapshot = await getDocs(q);
       const sequence = String(snapshot.size + 1).padStart(3, "0");
 
+      // 👉 continua Avante- (como você já tinha)
       const codigo = `Avante-${year}.${month}.${sequence}`;
+
       const total_hours =
         form.business_days * form.hours_per_day * form.devs;
       const total_cost = total_hours * form.hourly_rate;
@@ -88,7 +93,7 @@ export default function NewPricing() {
     }
   };
 
-  // Atualiza os procedimentos
+  // Atualiza os procedimentos (mesma lógica)
   const handleProcedureChange = (index, field, value) => {
     const updated = [...procedures];
     updated[index][field] = value;
@@ -100,35 +105,35 @@ export default function NewPricing() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="flex flex-col min-h-screen bg-[#020617] text-slate-100">
       <Header />
 
-      <main className="flex flex-col items-center justify-center flex-1 px-4">
+      <main className="flex flex-col items-center justify-center flex-1 px-4 py-8">
         <form
           onSubmit={handleSubmit}
-          className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-lg mt-6 flex flex-col gap-3"
+          className="w-full max-w-3xl bg-slate-900/80 border border-slate-800 rounded-2xl shadow-xl p-6 md:p-8 flex flex-col gap-4"
         >
-          <h2 className="text-center text-xl font-semibold mb-4">
-            Nova Precificação
+          <h2 className="text-center text-2xl md:text-3xl font-semibold text-cyan-300 mb-2">
+            Nova Precificação — AvanteTech Jr.
           </h2>
 
           {/* 🔹 Dados da empresa */}
-          <div className="p-3 border rounded bg-gray-50 text-sm">
-            <p>
-              <strong>{companyData.name}</strong>
-            </p>
+          <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 text-xs md:text-sm space-y-1">
+            <p className="font-semibold text-cyan-300">{companyData.name}</p>
             <p>CNPJ: {companyData.cnpj}</p>
             <p>{companyData.address}</p>
             <p>
-              {companyData.phone} - {companyData.email}
+              {companyData.phone} · {companyData.email}
             </p>
           </div>
 
           {/* 🔹 Cliente */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">Cliente</label>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs md:text-sm font-medium">
+              Cliente <span className="text-red-400">*</span>
+            </label>
             <select
-              className="border p-2 rounded"
+              className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
               value={form.clientId}
               onChange={(e) => setForm({ ...form, clientId: e.target.value })}
               required
@@ -142,126 +147,150 @@ export default function NewPricing() {
             </select>
           </div>
 
-          {/* 🔹 Descrição do problema */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">
+          {/* 🔹 Descrição do problema (textarea para quebra de linha) */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs md:text-sm font-medium">
               Descrição do problema
             </label>
-            <input
-              type="text"
+            <textarea
+              rows={3}
               value={form.problem_description}
               onChange={(e) =>
                 setForm({ ...form, problem_description: e.target.value })
               }
-              className="border p-2 rounded"
+              className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 resize-y"
+              placeholder="Descreva o contexto, dores do cliente, objetivos do projeto..."
             />
           </div>
 
-          {/* 🔹 Informações do equipamento */}
-          <div className="flex gap-2">
+          {/* 🔹 Informações do equipamento / serviço */}
+          <div className="flex flex-col md:flex-row gap-2">
             <input
               type="text"
-              placeholder="Serviço Prestado"
+              placeholder="Serviço prestado"
               value={form.equipment_name}
               onChange={(e) =>
                 setForm({ ...form, equipment_name: e.target.value })
               }
-              className="border p-2 rounded w-1/3"
+              className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             />
             <input
               type="text"
               placeholder="Marca"
               value={form.brand}
               onChange={(e) => setForm({ ...form, brand: e.target.value })}
-              className="border p-2 rounded w-1/3"
+              className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             />
             <input
               type="text"
               placeholder="Modelo"
               value={form.model}
               onChange={(e) => setForm({ ...form, model: e.target.value })}
-              className="border p-2 rounded w-1/3"
+              className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             />
           </div>
 
-          {/* 🔹 Procedimentos */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">
+          {/* 🔹 Procedimentos (textarea para quebra de linha) */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs md:text-sm font-medium">
               Procedimentos & Cronograma
             </label>
             {procedures.map((p, index) => (
-              <div key={index} className="flex gap-2 mb-2">
-                <input
-                  type="text"
-                  placeholder="Nome do procedimento"
+              <div
+                key={index}
+                className="flex flex-col md:flex-row gap-2 items-start"
+              >
+                <textarea
+                  placeholder="Nome / descrição do procedimento"
                   value={p.description}
                   onChange={(e) =>
                     handleProcedureChange(index, "description", e.target.value)
                   }
-                  className="border p-2 rounded flex-1"
+                  rows={2}
+                  className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 flex-1 focus:outline-none focus:ring-2 focus:ring-cyan-400 resize-y"
                 />
-                <input
-                  type="number"
-                  placeholder="Dias"
-                  value={p.days}
-                  onChange={(e) =>
-                    handleProcedureChange(index, "days", Number(e.target.value))
-                  }
-                  className="border p-2 rounded w-20"
-                />
+                <div className="w-full md:w-24">
+                  <label className="text-[11px] font-medium block mb-1">
+                    Dias
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="Dias"
+                    value={p.days}
+                    onChange={(e) =>
+                      handleProcedureChange(
+                        index,
+                        "days",
+                        Number(e.target.value)
+                      )
+                    }
+                    className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  />
+                </div>
               </div>
             ))}
+
             <button
               type="button"
               onClick={addProcedure}
-              className="bg-gray-200 text-sm px-2 py-1 rounded hover:bg-gray-300 transition"
+              className="mt-1 self-start bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-full border border-slate-600 text-slate-100 transition"
             >
               + Adicionar procedimento
             </button>
           </div>
 
           {/* 🔹 Equipe e horas */}
-          <div className="flex gap-2">
-            <div className="flex flex-col w-1/3">
-              <label className="text-sm font-medium mb-1">Devs</label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs md:text-sm font-medium">Devs</label>
               <input
                 type="number"
                 value={form.devs}
                 onChange={(e) =>
                   setForm({ ...form, devs: Number(e.target.value) })
                 }
-                className="border p-2 rounded"
+                className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
               />
             </div>
 
-            <div className="flex flex-col w-1/3">
-              <label className="text-sm font-medium mb-1">Dias úteis</label>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs md:text-sm font-medium">
+                Dias úteis
+              </label>
               <input
                 type="number"
                 value={form.business_days}
                 onChange={(e) =>
-                  setForm({ ...form, business_days: Number(e.target.value) })
+                  setForm({
+                    ...form,
+                    business_days: Number(e.target.value),
+                  })
                 }
-                className="border p-2 rounded"
+                className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
               />
             </div>
 
-            <div className="flex flex-col w-1/3">
-              <label className="text-sm font-medium mb-1">Horas/dia</label>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs md:text-sm font-medium">
+                Horas/dia
+              </label>
               <input
                 type="number"
                 value={form.hours_per_day}
                 onChange={(e) =>
-                  setForm({ ...form, hours_per_day: Number(e.target.value) })
+                  setForm({
+                    ...form,
+                    hours_per_day: Number(e.target.value),
+                  })
                 }
-                className="border p-2 rounded"
+                className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
               />
             </div>
           </div>
 
           {/* 🔹 Valor por hora */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs md:text-sm font-medium">
               Valor da hora (R$)
             </label>
             <input
@@ -270,7 +299,7 @@ export default function NewPricing() {
               onChange={(e) =>
                 setForm({ ...form, hourly_rate: Number(e.target.value) })
               }
-              className="border p-2 rounded"
+              className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
             />
           </div>
 
@@ -278,13 +307,13 @@ export default function NewPricing() {
           <button
             type="submit"
             disabled={loading}
-            className={`bg-blue-600 text-white py-3 rounded-md font-semibold transition ${
+            className={`mt-2 w-full py-3 rounded-lg font-semibold text-sm shadow-md transition-transform ${
               loading
-                ? "opacity-60 cursor-not-allowed"
-                : "hover:bg-blue-700 hover:scale-105"
+                ? "bg-cyan-500/60 text-slate-900 cursor-not-allowed"
+                : "bg-cyan-500 text-slate-900 hover:bg-cyan-400 hover:-translate-y-0.5"
             }`}
           >
-            {loading ? "Salvando..." : "Salvar Precificação"}
+            {loading ? "Salvando..." : "Salvar precificação"}
           </button>
         </form>
       </main>
@@ -292,9 +321,9 @@ export default function NewPricing() {
       {/* 🔹 Botão flutuante — Voltar para Lista de Preços */}
       <button
         onClick={() => navigate("/pricings")}
-        className="fixed bottom-6 left-6 bg-blue-600 text-white p-4 rounded-full shadow-lg 
-                   hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all duration-200 ease-out"
-        title="Voltar para Lista de Preços"
+        className="fixed bottom-6 left-6 bg-cyan-500 text-slate-950 p-4 rounded-full shadow-lg 
+                   hover:bg-cyan-400 hover:scale-105 active:scale-95 transition-all duration-200 ease-out"
+        title="Voltar para lista de precificações"
       >
         <Home size={26} />
       </button>

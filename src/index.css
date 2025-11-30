@@ -1,1 +1,32 @@
 @import "tailwindcss";
+
+/* ⭐ Animação das estrelas flutuando pelo fundo */
+
+@keyframes star-float {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(40px, -120vh, 0); /* sobe e anda um pouco pro lado */
+    opacity: 0;
+  }
+}
+
+.star-floating {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: #22d3ee; /* cyan */
+  box-shadow: 0 0 12px 4px rgba(34, 211, 238, 0.9);
+  animation-name: star-float;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}

@@ -4,14 +4,14 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
-// Configuração do Firebase do seu projeto
+// Configuração do Firebase usando variáveis de ambiente
 const firebaseConfig = {
-  apiKey: "AIzaSyDnKgriso8lL-tBgsnMscs4cJoV0oCyUio",
-  authDomain: "avante-pricing-830e7.firebaseapp.com",
-  projectId: "avante-pricing-830e7",
-  storageBucket: "avante-pricing-830e7.appspot.com", // ⚠️ corrigido: era .app → tem que ser .appspot.com
-  messagingSenderId: "180241921540",
-  appId: "1:180241921540:web:608f3e371bbd2d0cf76751"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Inicializando o app
