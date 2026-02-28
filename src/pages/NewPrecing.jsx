@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { db } from "/src/components/firebase";
 import { collection, getDocs, addDoc, query, where } from "firebase/firestore";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -22,7 +22,7 @@ export default function NewPricing() {
   const clientIdFromUrl = searchParams.get("clientId");
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Form (lógica original mantida)
+  // 🔹 Form (lógica original mantida + desconto)
   const [form, setForm] = useState({
     clientId: clientIdFromUrl || "",
     problem_description: "",
@@ -33,6 +33,10 @@ export default function NewPricing() {
     business_days: 1,
     hours_per_day: 1,
     hourly_rate: 0,
+
+    // ✅ NOVO: desconto
+    discount_type: "percent", // "percent" | "fixed"
+    discount_value: 0, // número (%, ou R$)
   });
 
   // 🔹 Procedimentos (lógica original mantida)
@@ -47,7 +51,34 @@ export default function NewPricing() {
     fetchClients();
   }, []);
 
-  // 🧩 Função principal de envio (MANTIDA)
+  // ✅ (Opcional) resumo em tempo real para o usuário ver antes de salvar
+  const liveCalc = useMemo(() => {
+    const total_hours =
+      Number(form.business_days || 0) *
+      Number(form.hours_per_day || 0) *
+      Number(form.devs || 0);
+
+    const subtotal = total_hours * Number(form.hourly_rate || 0);
+
+    const discountRaw =
+      form.discount_type === "percent"
+        ? (subtotal * Number(form.discount_value || 0)) / 100
+        : Number(form.discount_value || 0);
+
+    const discount_applied = Math.min(Math.max(discountRaw, 0), subtotal);
+    const total_cost = Math.max(subtotal - discount_applied, 0);
+
+    return { total_hours, subtotal, discount_applied, total_cost };
+  }, [
+    form.business_days,
+    form.hours_per_day,
+    form.devs,
+    form.hourly_rate,
+    form.discount_type,
+    form.discount_value,
+  ]);
+
+  // 🧩 Função principal de envio (mantida + desconto)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -68,15 +99,32 @@ export default function NewPricing() {
       // 👉 continua Avante- (como você já tinha)
       const codigo = `Avante-${year}.${month}.${sequence}`;
 
+      // ✅ cálculos com desconto
       const total_hours =
-        form.business_days * form.hours_per_day * form.devs;
-      const total_cost = total_hours * form.hourly_rate;
+        Number(form.business_days || 0) *
+        Number(form.hours_per_day || 0) *
+        Number(form.devs || 0);
+
+      const subtotal = total_hours * Number(form.hourly_rate || 0);
+
+      const discountRaw =
+        form.discount_type === "percent"
+          ? (subtotal * Number(form.discount_value || 0)) / 100
+          : Number(form.discount_value || 0);
+
+      const discount_applied = Math.min(Math.max(discountRaw, 0), subtotal);
+      const total_cost = Math.max(subtotal - discount_applied, 0);
 
       const docRef = await addDoc(collection(db, "pricings"), {
         ...form,
         codigo,
         total_hours,
+
+        // ✅ NOVO: campos calculados
+        subtotal,
+        discount_applied,
         total_cost,
+
         status: "draft",
         created_at: new Date(),
         companyData,
@@ -147,7 +195,7 @@ export default function NewPricing() {
             </select>
           </div>
 
-          {/* 🔹 Descrição do problema (textarea para quebra de linha) */}
+          {/* 🔹 Descrição do problema */}
           <div className="flex flex-col gap-1">
             <label className="text-xs md:text-sm font-medium">
               Descrição do problema
@@ -190,7 +238,7 @@ export default function NewPricing() {
             />
           </div>
 
-          {/* 🔹 Procedimentos (textarea para quebra de linha) */}
+          {/* 🔹 Procedimentos */}
           <div className="flex flex-col gap-2">
             <label className="text-xs md:text-sm font-medium">
               Procedimentos & Cronograma
@@ -218,11 +266,7 @@ export default function NewPricing() {
                     placeholder="Dias"
                     value={p.days}
                     onChange={(e) =>
-                      handleProcedureChange(
-                        index,
-                        "days",
-                        Number(e.target.value)
-                      )
+                      handleProcedureChange(index, "days", Number(e.target.value))
                     }
                     className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   />
@@ -245,6 +289,7 @@ export default function NewPricing() {
               <label className="text-xs md:text-sm font-medium">Devs</label>
               <input
                 type="number"
+                min={1}
                 value={form.devs}
                 onChange={(e) =>
                   setForm({ ...form, devs: Number(e.target.value) })
@@ -259,6 +304,7 @@ export default function NewPricing() {
               </label>
               <input
                 type="number"
+                min={1}
                 value={form.business_days}
                 onChange={(e) =>
                   setForm({
@@ -276,6 +322,8 @@ export default function NewPricing() {
               </label>
               <input
                 type="number"
+                min={0}
+                step="0.5"
                 value={form.hours_per_day}
                 onChange={(e) =>
                   setForm({
@@ -295,12 +343,81 @@ export default function NewPricing() {
             </label>
             <input
               type="number"
+              min={0}
+              step="0.01"
               value={form.hourly_rate}
               onChange={(e) =>
                 setForm({ ...form, hourly_rate: Number(e.target.value) })
               }
               className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
             />
+          </div>
+
+          {/* ✅ Desconto */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs md:text-sm font-medium">
+                Tipo de desconto
+              </label>
+              <select
+                value={form.discount_type}
+                onChange={(e) =>
+                  setForm({ ...form, discount_type: e.target.value })
+                }
+                className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              >
+                <option value="percent">Percentual (%)</option>
+                <option value="fixed">Valor fixo (R$)</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label className="text-xs md:text-sm font-medium">
+                Desconto {form.discount_type === "percent" ? "(%)" : "(R$)"}
+              </label>
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                value={form.discount_value}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    discount_value: Number(e.target.value),
+                  })
+                }
+                className="border border-slate-700 bg-slate-950 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              />
+            </div>
+          </div>
+
+          {/* ✅ Resumo (opcional, mas ajuda muito) */}
+          <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 text-sm space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-300">Total de horas</span>
+              <span className="font-semibold">{liveCalc.total_hours}</span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-slate-300">Subtotal</span>
+              <span className="font-semibold">
+                R$ {liveCalc.subtotal.toFixed(2)}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-slate-300">Desconto aplicado</span>
+              <span className="font-semibold">
+                - R$ {liveCalc.discount_applied.toFixed(2)}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+              <span className="text-cyan-300 font-semibold">Total</span>
+              <span className="text-cyan-300 font-bold">
+                R$ {liveCalc.total_cost.toFixed(2)}
+              </span>
+            </div>
           </div>
 
           {/* 🔹 Botão principal */}
